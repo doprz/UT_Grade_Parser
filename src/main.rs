@@ -3,11 +3,10 @@ use std::fs::File;
 use std::io::{Read, Write};
 use encoding_rs::*;
 
-const CSV_HEADER: &str = "Year\tSemester\tSection\tDepartment\tDepartment Code\tCourse Number\tCourse Title\tCourse Full Title\tA\tA-\tB+\tB\tB-\tC+\tC\tC-\tD+\tD\tD-\tF\tOther";
+const CSV_HEADER: &str = "Semester\tSection\tDepartment\tDepartment Code\tCourse Number\tCourse Title\tCourse Full Title\tA\tA-\tB+\tB\tB-\tC+\tC\tC-\tD+\tD\tD-\tF\tOther";
 
 #[derive(Debug)]
 struct CourseInfo {
-    year: String,
     semester: String,
     section: u16,
     department: String,
@@ -20,11 +19,6 @@ struct CourseInfo {
 
 #[derive(Debug)]
 struct CourseInfoTokenized {
-    // Example
-    // ["2021-2022", "Spring 2022", "180", "Study Abroad Exchange Progs", 
-    // "SAB", " 300", "STUDY ABROAD EXCHANGE PROGRAMS", 
-    // "SAB-300: STUDY ABROAD EXCHANGE PROGRAMS, Section no. 180", "A", "38"]
-    year: String,
     semester: String,
     section: u16,
     department: String,
@@ -39,20 +33,18 @@ struct CourseInfoTokenized {
 fn parse_course_info(input: &str) -> Result<CourseInfoTokenized, ()>{
     let tokens: Vec<&str> = input.split('\t').collect::<Vec<&str>>();
 
-    if tokens.len() == 10 {
-        let year: String = tokens[0].to_string();
-        let semester: String = tokens[1].to_string();
-        let section: u16 = tokens[2].parse::<u16>().unwrap();
-        let department: String = tokens[3].to_string();
-        let department_code: String = tokens[4].to_string();
-        let course_number: String = tokens[5].trim().to_string();
-        let course_title: String = tokens[6].to_string();
-        let course_full_title: String = tokens[7].to_string();
-        let grade: String = tokens[8].to_string();
-        let grade_count: u16 = tokens[9].replace(",", "").parse::<u16>().unwrap();
+    if tokens.len() == 9 {
+        let semester: String = tokens[0].to_string();
+        let section: u16 = tokens[1].parse::<u16>().unwrap();
+        let department: String = tokens[2].to_string();
+        let department_code: String = tokens[3].to_string();
+        let course_number: String = tokens[4].trim().to_string();
+        let course_title: String = tokens[5].to_string();
+        let course_full_title: String = tokens[6].to_string();
+        let grade: String = tokens[7].to_string();
+        let grade_count: u16 = tokens[8].replace(",", "").parse::<u16>().unwrap();
 
         Ok(CourseInfoTokenized {
-            year,
             semester,
             section,
             department,
@@ -78,7 +70,7 @@ fn main() {
 
     let mut course_info_map: HashMap<String, CourseInfo> = HashMap::new();
 
-    for line in decoded_string.lines() {
+    for line in decoded_string.lines().skip(1) {
         let course_info: CourseInfoTokenized = parse_course_info(line).expect("Failed to parse course info");
         let course_full_title: String = course_info.course_full_title.clone();
 
@@ -86,7 +78,6 @@ fn main() {
             existing_course_info.grade.insert(course_info.grade, course_info.grade_count);
         } else {
             let mut new_course_info = CourseInfo {
-                year: course_info.year,
                 semester: course_info.semester,
                 section: course_info.section,
                 department: course_info.department,
@@ -117,7 +108,7 @@ fn main() {
         }
     }
 
-    // println!("{:#?}", course_info_map);
+    println!("{:#?}", course_info_map);
 
     let mut csv_output_file: File = File::create("output.csv").expect("Failed to create output file");
 
@@ -125,8 +116,7 @@ fn main() {
 
     for (_, course_info) in course_info_map.iter() {
         let mut output_line: String = format!(
-            "\n{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}",
-            course_info.year,
+            "\n{}\t{}\t{}\t{}\t{}\t{}\t{}",
             course_info.semester,
             course_info.section,
             course_info.department,

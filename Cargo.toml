@@ -2,6 +2,12 @@
 name = "ut_grade_parser"
 version = "0.1.0"
 edition = "2021"
+description = "A grade distribution parser for the University of Texas at Austin"
+authors = ["doprz"]
+homepage = "https://github.com/doprz/UT_Grade_Parser"
+repository = "https://github.com/doprz/UT_Grade_Parser"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

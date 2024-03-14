@@ -155,24 +155,44 @@ pub async fn fetch_and_download_grade_distributions() -> Result<(), Box<dyn std:
     let session_id: String = get_session_id().await?;
     println!("Session ID: {}", session_id);
 
+    println!("[1/4] Bootstrapping session");
     bootstrap(&session_id).await?;
 
     // filter sheet
+    println!("[2/4] Categorial filter all. Select all semesters and select all courses");
     categorial_filter_all(&session_id, "Calculation_3161245480939225089").await?;
     categorial_filter_all(&session_id, "COURSE_PREFIX").await?;
+
+    println!("[3/4] Set expanded values");
     set_expanded_values(&session_id).await?;
 
     create_dir_all("out")?;
 
     // 2010-2011 to 2022-2023
-    for i in 0..13 {
+    let years: usize = 13;
+
+    println!("[4/4] Exporting CSVs");
+    let pb = indicatif::ProgressBar::new(years as u64);
+    pb.set_style(
+        indicatif::ProgressStyle::with_template(
+            "[{elapsed_precise}] {bar:40} {pos:>7}/{len:7} {msg}",
+        )
+        .unwrap()
+        .progress_chars("##-"),
+    );
+
+    for i in 0..years {
+        pb.set_message(format!("Exporting CSV for {}-{}", i + 2010, i + 2011));
         categorical_filter_indices(&session_id, "ACADEMIC_YEAR_SPAN", i).await?;
         let csv = export_csv(&session_id).await?;
 
         let file_name = format!("out/grade_distributions_{}-{}.csv", i + 2010, i + 2011);
         let mut file = File::create(file_name)?;
         file.write_all(&csv)?;
+
+        pb.inc(1);
     }
+    pb.finish_with_message("Exported all CSVs");
 
     Ok(())
 }

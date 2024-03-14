@@ -12,3 +12,9 @@ target/
 
 # MSVC Windows builds of rustc generate these, which store debugging information
 *.pdb
+
+.DS_Store
+
+/out
+/out_parsed
+grade_distributions.db

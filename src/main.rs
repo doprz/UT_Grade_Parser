@@ -1,10 +1,12 @@
+mod database;
+mod network;
+mod parse;
+
+use crate::database::insert_data_into_db_from_dir;
 use crate::network::fetch_and_download_grade_distributions;
 use crate::parse::parse_csv_directory;
 
 use clap::{Parser, Subcommand};
-
-mod network;
-mod parse;
 
 #[derive(Subcommand)]
 enum Commands {
@@ -23,6 +25,8 @@ enum Commands {
         // #[clap(short, long)]
         // output: std::path::PathBuf,
     },
+    /// Create a sqlite3 database
+    Database,
     /// Run all commands
     All,
 }
@@ -44,18 +48,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     match cli.command {
         Commands::Download {} => {
-            fetch_and_download_grade_distributions().await?;
             println!("fetch_and_download_grade_distributions()");
+            fetch_and_download_grade_distributions().await?;
         }
         Commands::Parse {} => {
-            parse_csv_directory("out", "out_parsed");
             println!("parse_csv_directory()");
+            parse_csv_directory("out", "out_parsed");
+        }
+        Commands::Database => {
+            println!("insert_data_into_db_from_dir()");
+            insert_data_into_db_from_dir("out_parsed")?;
         }
         Commands::All => {
-            fetch_and_download_grade_distributions().await?;
-            parse_csv_directory("out", "out_parsed");
             println!("fetch_and_download_grade_distributions()");
+            fetch_and_download_grade_distributions().await?;
+
             println!("parse_csv_directory()");
+            parse_csv_directory("out", "out_parsed");
+
+            println!("insert_data_into_db_from_dir()");
+            insert_data_into_db_from_dir("out_parsed")?;
         }
     }
 

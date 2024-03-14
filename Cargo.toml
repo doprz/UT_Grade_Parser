@@ -8,7 +8,7 @@ homepage = "https://github.com/doprz/UT_Grade_Parser"
 repository = "https://github.com/doprz/UT_Grade_Parser"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
-keywords = ["ut", "grade", "parser", "university", "texas", "austin"]
+keywords = ["university", "texas", "austin", "grade", "parser"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

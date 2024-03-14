@@ -158,9 +158,18 @@ pub fn parse_csv_file(
                     grade_map
                 },
             };
-            new_course_info
-                .grade
-                .insert(course_info.grade, course_info.grade_count);
+
+            // Edge-case: UT doesn't have an A+ grade but it's in the data
+            if course_info.grade == "A+" {
+                // Add the A+ grade to the A grade
+                let a_grade_count =
+                    course_info.grade_count + new_course_info.grade.get("A").unwrap();
+                new_course_info.grade.insert("A".to_string(), a_grade_count);
+            } else {
+                new_course_info
+                    .grade
+                    .insert(course_info.grade, course_info.grade_count);
+            }
             course_info_map.insert(course_full_title, new_course_info);
         }
     }

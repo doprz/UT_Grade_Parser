@@ -42,33 +42,42 @@ struct Cli {
     debug: u8,
 }
 
+async fn download() -> Result<(), Box<dyn std::error::Error>> {
+    println!("fetch_and_download_grade_distributions()");
+    fetch_and_download_grade_distributions().await?;
+
+    Ok(())
+}
+
+fn parse() {
+    println!("parse_csv_directory()");
+    parse_csv_directory("out", "out_parsed");
+}
+
+fn database() -> Result<(), Box<dyn std::error::Error>> {
+    println!("insert_data_into_db_from_dir()");
+    insert_data_into_db_from_dir("out_parsed")?;
+
+    Ok(())
+}
+
+async fn all() -> Result<(), Box<dyn std::error::Error>> {
+    download().await?;
+    parse();
+    database()?;
+
+    Ok(())
+}
+
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Download {} => {
-            println!("fetch_and_download_grade_distributions()");
-            fetch_and_download_grade_distributions().await?;
-        }
-        Commands::Parse {} => {
-            println!("parse_csv_directory()");
-            parse_csv_directory("out", "out_parsed");
-        }
-        Commands::Database => {
-            println!("insert_data_into_db_from_dir()");
-            insert_data_into_db_from_dir("out_parsed")?;
-        }
-        Commands::All => {
-            println!("fetch_and_download_grade_distributions()");
-            fetch_and_download_grade_distributions().await?;
-
-            println!("parse_csv_directory()");
-            parse_csv_directory("out", "out_parsed");
-
-            println!("insert_data_into_db_from_dir()");
-            insert_data_into_db_from_dir("out_parsed")?;
-        }
+        Commands::Download {} => download().await?,
+        Commands::Parse {} => parse(),
+        Commands::Database => database()?,
+        Commands::All => all().await?,
     }
 
     Ok(())

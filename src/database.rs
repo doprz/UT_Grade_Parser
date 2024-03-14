@@ -1,3 +1,32 @@
+/// This module contains functions to interact with the SQLite3 database
+/// It provides functions to create a new database, insert data into the database, and query the database.
+/// The module uses the `rusqlite` crate for interacting with the SQLite3 database.
+/// It also uses the `csv` crate for reading and writing CSV files.
+///
+/// The main functions in this module are:
+/// - `insert_data_into_db`: Inserts data from a CSV file into the database.
+/// - `insert_data_into_db_from_dir`: Inserts data from multiple CSV files in a directory into the database.
+///
+/// Example usage:
+/// ```
+/// use database::{insert_data_into_db, insert_data_into_db_from_dir};
+///
+/// // Insert data from a CSV file into the database
+/// insert_data_into_db("grade_distributions.csv");
+///
+/// // Insert data from multiple CSV files in a directory into the database
+/// insert_data_into_db_from_dir("grade_distributions");
+/// ```
+
+/// Inserts data from a CSV file into the database.
+///
+/// # Arguments
+///
+/// * `csv_file` - The path to the CSV file.
+///
+/// # Returns
+///
+/// * `Result<(), Box<dyn std::error::Error>>` - A result indicating success or failure.
 pub fn insert_data_into_db(csv_file: &str) -> Result<(), Box<dyn std::error::Error>> {
     let db_connection: rusqlite::Connection = rusqlite::Connection::open("grade_distributions.db")?;
 
@@ -105,6 +134,15 @@ pub fn insert_data_into_db(csv_file: &str) -> Result<(), Box<dyn std::error::Err
     Ok(())
 }
 
+/// Inserts data from multiple CSV files in a directory into the database.
+///
+/// # Arguments
+///
+/// * `input_dir` - The path to the input directory containing the CSV files.
+///
+/// # Returns
+///
+/// * `Result<(), Box<dyn std::error::Error>>` - A result indicating success or failure.
 pub fn insert_data_into_db_from_dir(input_dir: &str) -> Result<(), Box<dyn std::error::Error>> {
     // Create a new sqlite3 database
     // If the database already exists, delete it

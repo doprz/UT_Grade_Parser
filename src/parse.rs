@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::fs::File;
 use std::io::Write;
 /// This module contains functions for parsing CSV files containing course information.
@@ -40,7 +40,7 @@ struct CourseInfo {
     course_number: String,
     course_title: String,
     course_full_title: String,
-    grade: HashMap<String, u16>,
+    grade: BTreeMap<String, u16>,
 }
 
 /// Represents the tokenized information of a course.
@@ -141,7 +141,8 @@ pub fn parse_csv_file(
                 course_title: course_info.course_title,
                 course_full_title: course_info.course_full_title,
                 grade: {
-                    let mut grade_map = HashMap::new();
+                    // note: BTreeMap is used to maintain order of the csv columns
+                    let mut grade_map = BTreeMap::new();
                     grade_map.insert("A".to_string(), 0);
                     grade_map.insert("A-".to_string(), 0);
                     grade_map.insert("B+".to_string(), 0);

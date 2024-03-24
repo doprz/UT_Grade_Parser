@@ -30,6 +30,10 @@ use std::io::Write;
 
 const CSV_HEADER: &str = "Semester\tSection\tDepartment\tDepartment Code\tCourse Number\tCourse Title\tCourse Full Title\tA\tA-\tB+\tB\tB-\tC+\tC\tC-\tD+\tD\tD-\tF\tOther";
 
+const GRADE_NAMES: [&str; 13] = [
+    "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "F", "Other",
+];
+
 /// Represents the information of a course.
 #[derive(Serialize, Deserialize, Debug)]
 struct CourseInfo {
@@ -193,7 +197,8 @@ pub fn parse_csv_file(
             course_info.course_full_title
         );
 
-        for (_, grade_count) in course_info.grade.iter() {
+        for grade_name in GRADE_NAMES.iter() {
+            let grade_count = course_info.grade.get(*grade_name).unwrap();
             output_line.push_str(&format!("\t{}", grade_count));
         }
 

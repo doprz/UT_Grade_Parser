@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::Write;
 /// This module contains functions for parsing CSV files containing course information.
@@ -30,6 +30,10 @@ use std::io::Write;
 
 const CSV_HEADER: &str = "Semester\tSection\tDepartment\tDepartment Code\tCourse Number\tCourse Title\tCourse Full Title\tA\tA-\tB+\tB\tB-\tC+\tC\tC-\tD+\tD\tD-\tF\tOther";
 
+const GRADE_NAMES: [&str; 13] = [
+    "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "F", "Other",
+];
+
 /// Represents the information of a course.
 #[derive(Serialize, Deserialize, Debug)]
 struct CourseInfo {
@@ -40,7 +44,7 @@ struct CourseInfo {
     course_number: String,
     course_title: String,
     course_full_title: String,
-    grade: BTreeMap<String, u16>,
+    grade: HashMap<String, u16>,
 }
 
 /// Represents the tokenized information of a course.
@@ -141,8 +145,7 @@ pub fn parse_csv_file(
                 course_title: course_info.course_title,
                 course_full_title: course_info.course_full_title,
                 grade: {
-                    // note: BTreeMap is used to maintain order of the csv columns
-                    let mut grade_map = BTreeMap::new();
+                    let mut grade_map = HashMap::new();
                     grade_map.insert("A".to_string(), 0);
                     grade_map.insert("A-".to_string(), 0);
                     grade_map.insert("B+".to_string(), 0);
@@ -194,7 +197,8 @@ pub fn parse_csv_file(
             course_info.course_full_title
         );
 
-        for (_, grade_count) in course_info.grade.iter() {
+        for grade_name in GRADE_NAMES.iter() {
+            let grade_count = course_info.grade.get(*grade_name).unwrap();
             output_line.push_str(&format!("\t{}", grade_count));
         }
 
